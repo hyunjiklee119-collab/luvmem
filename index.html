@@ -232,31 +232,19 @@
       mission3Photos: [
         {
           id: 1,
-          label: '사진 1',
-          name: '처음 함께했던 날',
-          period: '2023 봄',
-          image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80'
+          image: 'https://github.com/hyunjiklee119-collab/luvmem/raw/b42513701b360f1079663428b6f3037961562cb8/1.jpg'
         },
         {
           id: 2,
-          label: '사진 2',
-          name: '설레던 첫 여행',
-          period: '2023 여름',
-          image: 'https://images.unsplash.com/photo-1510525009512-ad7fc13eefab?auto=format&fit=crop&w=400&q=80'
+          image: 'https://github.com/hyunjiklee119-collab/luvmem/raw/b42513701b360f1079663428b6f3037961562cb8/2.jpg'
         },
         {
           id: 3,
-          label: '사진 3',
-          name: '우리의 두 번째 가을',
-          period: '2024 가을',
-          image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80'
+          image: 'https://github.com/hyunjiklee119-collab/luvmem/raw/b42513701b360f1079663428b6f3037961562cb8/3.jpg'
         },
         {
           id: 4,
-          label: '사진 4',
-          name: '약속의 오늘',
-          period: '2025 지금',
-          image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=400&q=80'
+          image: 'https://github.com/hyunjiklee119-collab/luvmem/raw/b42513701b360f1079663428b6f3037961562cb8/4.jpg'
         }
       ],
       mission3Digit: '7', // 마지막 3번째 자물쇠 번호 (원하시는 숫자로 변경 가능)
@@ -456,7 +444,7 @@
         </div>
 
         <div class="text-xs font-semibold text-roseGold-300 leading-snug">
-          Q. 아래 4장의 사진을 <span class="text-white underline decoration-roseGold-400">가장 오래된 과거부터 최근 순서대로</span> (1번 → 4번) 터치해 완성하세요.
+          Q. 아래 4장의 사진을 <span class="text-white underline decoration-roseGold-400">가장 오래된 과거부터 최근 순서대로</span> 터치해 타임라인을 완성하세요.
         </div>
       `;
 
@@ -464,48 +452,52 @@
         // Selection indicator bar
         content += `
           <div class="bg-black/50 p-2.5 rounded-xl border border-roseGold-500/20 flex items-center justify-between">
-            <span class="text-[11px] text-gray-400">선택한 순서:</span>
-            <div class="flex items-center gap-1.5 font-sans font-bold text-xs">
+            <span class="text-[11px] text-gray-400">선택 현황:</span>
+            <div class="flex items-center gap-2 font-sans font-bold text-xs">
               ${[0, 1, 2, 3].map(i => {
                 const photoId = selectedPhotoSequence[i];
+                const photoObj = photoId ? CONFIG.mission3Photos.find(p => p.id === photoId) : null;
                 return `
-                  <div class="w-6 h-6 rounded flex items-center justify-center border ${
-                    photoId
-                      ? 'bg-roseGold-500/30 border-roseGold-400 text-roseGold-300'
-                      : 'border-white/10 bg-black/40 text-gray-600'
+                  <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center border transition-all duration-300 ${
+                    photoObj
+                      ? 'border-roseGold-400 ring-1 ring-roseGold-400/60 bg-black'
+                      : 'border-white/10 bg-white/5 text-gray-500 text-[11px]'
                   }">
-                    ${photoId ? `사진${photoId}` : (i + 1)}
+                    ${photoObj 
+                      ? `<img src="${photoObj.image}" class="w-full h-full object-cover" />` 
+                      : (i + 1)
+                    }
                   </div>
                 `;
               }).join('')}
             </div>
-            <button onclick="resetPhotoSelection()" class="text-[10px] text-roseGold-400 underline ml-2">다시선택</button>
+            <button onclick="resetPhotoSelection()" class="text-[10px] text-roseGold-400 hover:text-white underline ml-2 transition">초기화</button>
           </div>
 
-          <!-- 4 Shuffled Photo Grid -->
-          <div class="grid grid-cols-2 gap-2 pt-1">
+          <!-- 4 Pure Shuffled Photo Grid (No Text Hints) -->
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
             ${shuffledPhotos.map((photo) => {
               const isSelected = selectedPhotoSequence.includes(photo.id);
               const orderIndex = selectedPhotoSequence.indexOf(photo.id);
 
               return `
-                <div onclick="handlePhotoClick(${photo.id})" class="relative rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                <div onclick="handlePhotoClick(${photo.id})" class="relative group rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer aspect-square ${
                   isSelected
-                    ? 'border-roseGold-400 ring-2 ring-roseGold-400/60 opacity-60 pointer-events-none'
-                    : 'border-white/15 hover:border-roseGold-400/50 active:scale-95'
+                    ? 'border-roseGold-400 ring-2 ring-roseGold-400/80 shadow-md'
+                    : 'border-white/15 hover:border-roseGold-400/50 active:scale-95 shadow'
                 }">
-                  <img src="${photo.image}" alt="${photo.label}" class="w-full h-24 object-cover">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2">
-                    <span class="text-xs font-bold text-white drop-shadow">${photo.label}</span>
-                    <span class="text-[9px] text-gray-300 drop-shadow">${photo.name}</span>
-                  </div>
+                  <img src="${photo.image}" alt="추억 사진" class="w-full h-full object-cover transition duration-300 ${isSelected ? 'brightness-40 grayscale-30' : 'group-hover:scale-105'}">
+                  
                   ${isSelected ? `
-                    <div class="absolute inset-0 bg-roseGold-950/70 flex items-center justify-center">
-                      <span class="w-7 h-7 rounded-full bg-roseGold-500 text-white font-sans font-bold text-xs flex items-center justify-center shadow">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 animate-fade-in">
+                      <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-roseGold-600 to-roseGold-400 text-white font-sans font-extrabold text-sm flex items-center justify-center shadow-lg border border-white/30">
                         ${orderIndex + 1}
-                      </span>
+                      </div>
+                      <span class="text-[10px] text-roseGold-200 font-sans tracking-tight">선택됨</span>
                     </div>
-                  ` : ''}
+                  ` : `
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60"></div>
+                  `}
                 </div>
               `;
             }).join('')}
@@ -514,7 +506,7 @@
       } else if (isCompleted) {
         content += `
           <div class="pt-2 border-t border-roseGold-500/20 flex items-center justify-between">
-            <span class="text-xs text-gray-300">정렬 성공: <strong class="text-roseGold-300">사진1 → 사진2 → 사진3 → 사진4</strong></span>
+            <span class="text-xs text-gray-300">정렬 성공: <strong class="text-roseGold-300 font-sans">100% 일치</strong></span>
             <span class="text-xs font-bold text-roseGold-400 bg-roseGold-500/20 px-2 py-0.5 rounded border border-roseGold-400/30">
               암호: [ ${CONFIG.mission3Digit} ]
             </span>
