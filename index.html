@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Our Secret Story - Unlock the Box</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti for Celebration Effect -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts: Noto Serif KR & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif KR"', 'serif'],
+            sans: ['"Montserrat"', 'sans-serif'],
+          },
+          colors: {
+            roseGold: {
+              300: '#fed7d7',
+              400: '#e8a598',
+              500: '#d98270',
+              600: '#b85f4e',
+            },
+            darkBg: '#0f0e13',
+            cardBg: '#1b1822',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-6px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Safe-area for modern smartphones */
+    body {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      background: radial-gradient(circle at 50% 20%, #201a28 0%, #0d0c11 100%);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass-panel {
+      background: rgba(28, 24, 36, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(232, 165, 152, 0.2);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px rgba(232, 165, 152, 0.25);
+    }
+    .gold-glow-strong {
+      box-shadow: 0 0 35px rgba(217, 130, 112, 0.45);
+    }
+    .photo-card-shadow {
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+  </style>
+</head>
+<body class="text-gray-100 flex flex-col justify-between items-center px-4 py-6 font-serif overflow-x-hidden selection:bg-roseGold-500 selection:text-white">
+
+  <!-- Sound Toggle Button (Floating Top Right) -->
+  <button id="soundToggleBtn" class="fixed top-4 right-4 z-50 p-2.5 rounded-full glass-panel text-roseGold-400 hover:text-white transition duration-300 shadow-md">
+    <svg id="soundIconOn" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+    </svg>
+    <svg id="soundIconOff" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+    </svg>
+  </button>
+
+  <!-- Top Dial Lock Area -->
+  <header class="w-full max-w-sm mt-3 flex flex-col items-center">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-sans tracking-widest text-roseGold-400 uppercase bg-roseGold-500/10 border border-roseGold-500/20 mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-roseGold-400 animate-ping"></span>
+      FINAL MISSION
+    </div>
+    <h1 class="text-xl font-bold tracking-wide text-center text-white mb-4">
+      우리의 시간으로 상자 열기
+    </h1>
+
+    <!-- 3-Digit Combination Slots -->
+    <div class="w-full glass-panel rounded-2xl p-4 flex flex-col items-center gold-glow">
+      <div class="text-[11px] font-sans tracking-wider text-gray-400 uppercase mb-3 flex items-center gap-1">
+        <span>Combination Lock</span>
+        <svg class="w-3.5 h-3.5 text-roseGold-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <!-- Slot 1 -->
+        <div id="slot-0" class="w-14 h-16 rounded-xl bg-black/60 border border-roseGold-500/40 flex items-center justify-center text-3xl font-sans font-bold text-roseGold-400 shadow-inner transition-all duration-500">
+          ?
+        </div>
+        <span class="text-roseGold-500/40 text-lg font-sans">-</span>
+        <!-- Slot 2 -->
+        <div id="slot-1" class="w-14 h-16 rounded-xl bg-black/60 border border-roseGold-500/40 flex items-center justify-center text-3xl font-sans font-bold text-roseGold-400 shadow-inner transition-all duration-500">
+          ?
+        </div>
+        <span class="text-roseGold-500/40 text-lg font-sans">-</span>
+        <!-- Slot 3 -->
+        <div id="slot-2" class="w-14 h-16 rounded-xl bg-black/60 border border-roseGold-500/40 flex items-center justify-center text-3xl font-sans font-bold text-roseGold-400 shadow-inner transition-all duration-500">
+          ?
+        </div>
+      </div>
+
+      <p id="lockStatusText" class="text-xs text-gray-400 mt-3 text-center">
+        사진 속 추억 퀴즈를 풀고 3자리 암호를 찾아보세요.
+      </p>
+    </div>
+  </header>
+
+  <!-- Middle Interactive Cards Container -->
+  <main class="w-full max-w-sm my-5 flex-1 flex flex-col justify-center">
+    <div id="cardsContainer" class="space-y-4">
+      <!-- Cards with interactive questions and choices are rendered dynamically -->
+    </div>
+  </main>
+
+  <!-- Bottom Helper / Reset & Guide -->
+  <footer class="w-full max-w-sm text-center pb-2">
+    <button id="resetBtn" class="text-xs text-gray-500 underline underline-offset-4 hover:text-gray-300 transition">
+      처음부터 다시 정렬하기
+    </button>
+  </footer>
+
+  <!-- Modal: Final Password Revealed -->
+  <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-700">
+    <div class="w-full max-w-sm glass-panel rounded-3xl p-6 text-center border border-roseGold-400/50 gold-glow-strong transform scale-90 transition-transform duration-500">
+      
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-roseGold-500/20 border border-roseGold-400/40 flex items-center justify-center text-roseGold-300 animate-float">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+
+      <div class="text-xs font-sans tracking-widest text-roseGold-400 uppercase mb-1">
+        Lock Unlocked
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">
+        상자의 문이 열렸습니다
+      </h2>
+
+      <p class="text-xs text-gray-300 leading-relaxed mb-6 font-sans">
+        우리가 함께 지나온 시간들이 열쇠가 되었습니다.<br>
+        이제 자물쇠 번호를 입력하고 상자를 열어보세요.
+      </p>
+
+      <!-- Big Key Code Display -->
+      <div class="bg-black/70 rounded-2xl py-4 px-6 border border-roseGold-500/40 mb-6">
+        <div class="text-[11px] text-gray-400 mb-1">자물쇠 비밀번호</div>
+        <div id="finalPasswordDisplay" class="text-4xl font-sans font-extrabold tracking-widest text-roseGold-300">
+          - - -
+        </div>
+      </div>
+
+      <p class="text-sm font-medium text-roseGold-300/90 italic mb-5 leading-normal">
+        "그 상자 안에는 당신에게 꼭 전하고 싶은<br>나의 진심이 기다리고 있어요."
+      </p>
+
+      <button id="closeModalBtn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-roseGold-500 to-roseGold-600 text-white font-semibold text-sm shadow-lg hover:brightness-110 active:scale-95 transition">
+        확인하고 상자 열기
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /*
+     * -------------------------------------------------------------
+     * [3자리 비밀번호 미션 설정]
+     * 1번: 첫 만남 날짜 퀴즈 (답: 3번 -> 비밀번호 1번째: 3)
+     * 2번: 남자친구 기피 음식 퀴즈 (답: 4번 -> 비밀번호 2번째: 4)
+     * 3번: 4장의 사진 시간순서 정렬 퀴즈 (1 -> 2 -> 3 -> 4 순서로 맞추면 3번째 번호 해금)
+     * -------------------------------------------------------------
+     */
+    const CONFIG = {
+      // 1번 퀴즈 설정
+      mission1: {
+        title: '우리의 첫 페이지',
+        theme: '첫 만남',
+        question: 'Q. 우리가 처음 알게 된 날은 언제일까요?',
+        options: [
+          { num: '①', text: '2월 14일', isCorrect: false },
+          { num: '②', text: '2월 9일', isCorrect: false },
+          { num: '③', text: '1월 29일', isCorrect: true },
+          { num: '④', text: '1월 1일', isCorrect: false }
+        ],
+        correctIndex: 2, // 3번
+        digit: '3',
+        successMsg: '처음 알게 된 설레는 날, 첫 번째 번호 [ 3 ] 획득!'
+      },
+      // 2번 퀴즈 설정
+      mission2: {
+        title: '너와 나의 취향',
+        theme: '음식 취향',
+        question: 'Q. 남자친구가 가장 싫어할 것 같은 음식을 고른다면?',
+        options: [
+          { num: '①', text: '파스타', isCorrect: false },
+          { num: '②', text: '햄버거', isCorrect: false },
+          { num: '③', text: '들깨탕', isCorrect: false },
+          { num: '④', text: '팔보채', isCorrect: true }
+        ],
+        correctIndex: 3, // 4번
+        digit: '4',
+        successMsg: '취향까지 완벽히 꿰뚫었네요! 두 번째 번호 [ 4 ] 획득!'
+      },
+      // 3번 사진 퀴즈 설정 (1번~4번 순서가 올바른 시간 순서)
+      mission3Photos: [
+        {
+          id: 1,
+          label: '사진 1',
+          name: '처음 함께했던 날',
+          period: '2023 봄',
+          image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80'
+        },
+        {
+          id: 2,
+          label: '사진 2',
+          name: '설레던 첫 여행',
+          period: '2023 여름',
+          image: 'https://images.unsplash.com/photo-1510525009512-ad7fc13eefab?auto=format&fit=crop&w=400&q=80'
+        },
+        {
+          id: 3,
+          label: '사진 3',
+          name: '우리의 두 번째 가을',
+          period: '2024 가을',
+          image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80'
+        },
+        {
+          id: 4,
+          label: '사진 4',
+          name: '약속의 오늘',
+          period: '2025 지금',
+          image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=400&q=80'
+        }
+      ],
+      mission3Digit: '7', // 마지막 3번째 자물쇠 번호 (원하시는 숫자로 변경 가능)
+      mission3SuccessMsg: '시간의 흐름을 모두 맞췄습니다! 마지막 번호 획득!'
+    };
+
+    // State Variables
+    let currentMission = 1; // 1, 2, 3
+    const unlockedDigits = [null, null, null];
+    let shuffledPhotos = [];
+    let selectedPhotoSequence = [];
+
+    let audioCtx = null;
+    let isPlaying = false;
+    let melodyTimer = null;
+
+    const melodyNotes = [
+      523.25, 659.25, 783.99, 1046.50,
+      587.33, 698.46, 880.00, 1174.66,
+      659.25, 783.99, 987.77, 1318.51,
+      523.25, 783.99, 1046.50, 1567.98
+    ];
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playMusicBoxNote(freq) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.6);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 1.6);
+    }
+
+    function playWrongSound() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function startMusic() {
+      initAudio();
+      isPlaying = true;
+      document.getElementById('soundIconOn').classList.remove('hidden');
+      document.getElementById('soundIconOff').classList.add('hidden');
+      let step = 0;
+      melodyTimer = setInterval(() => {
+        playMusicBoxNote(melodyNotes[step % melodyNotes.length]);
+        step++;
+      }, 700);
+    }
+
+    function stopMusic() {
+      isPlaying = false;
+      clearInterval(melodyTimer);
+      document.getElementById('soundIconOn').classList.add('hidden');
+      document.getElementById('soundIconOff').classList.remove('hidden');
+    }
+
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      if (isPlaying) stopMusic();
+      else startMusic();
+    });
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function updateSlotDisplay(index, digit) {
+      const slotEl = document.getElementById(`slot-${index}`);
+      slotEl.textContent = digit;
+      slotEl.classList.remove('border-roseGold-500/40', 'bg-black/60');
+      slotEl.classList.add('border-roseGold-400', 'bg-roseGold-500/20', 'text-white', 'gold-glow');
+    }
+
+    function renderMissions() {
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+
+      // MISSION 1 CARD
+      renderQuizCard(container, 1, CONFIG.mission1);
+
+      // MISSION 2 CARD
+      renderQuizCard(container, 2, CONFIG.mission2);
+
+      // MISSION 3 CARD (Photo Timeline)
+      renderPhotoTimelineCard(container);
+    }
+
+    function renderQuizCard(container, missionNum, config) {
+      const isCompleted = currentMission > missionNum;
+      const isCurrent = currentMission === missionNum;
+
+      const card = document.createElement('div');
+      card.id = `mission-card-${missionNum}`;
+      card.className = `w-full rounded-2xl p-4 transition-all duration-500 photo-card-shadow flex flex-col gap-3 ${
+        isCompleted
+          ? 'glass-panel border-roseGold-400/50 bg-roseGold-950/20'
+          : isCurrent
+          ? 'glass-panel border-roseGold-500 shadow-lg ring-1 ring-roseGold-500/50'
+          : 'bg-darkBg/60 border border-white/5 opacity-40 pointer-events-none'
+      }`;
+
+      let content = `
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-roseGold-500/20 text-roseGold-400 border border-roseGold-400/30">
+              MISSION 0${missionNum}
+            </span>
+            <span class="text-xs text-gray-300 font-bold">${config.title}</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-sans">${config.theme}</span>
+        </div>
+
+        <div class="text-xs font-semibold text-roseGold-300 leading-snug">
+          ${config.question}
+        </div>
+      `;
+
+      if (isCurrent) {
+        content += `
+          <div class="grid grid-cols-1 gap-2 pt-1">
+            ${config.options.map((opt, idx) => `
+              <button onclick="handleQuizAnswer(${missionNum}, ${idx})" class="w-full py-2.5 px-3 rounded-xl text-left text-xs text-gray-200 bg-white/5 hover:bg-roseGold-500/25 border border-white/10 hover:border-roseGold-400/50 active:scale-98 transition flex items-center justify-between">
+                <span><strong class="text-roseGold-400 mr-1.5">${opt.num}</strong> ${opt.text}</span>
+                <span class="text-[10px] text-roseGold-300/60 font-sans">선택</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+      } else if (isCompleted) {
+        const correctOpt = config.options[config.correctIndex];
+        content += `
+          <div class="pt-2 border-t border-roseGold-500/20 flex items-center justify-between">
+            <span class="text-xs text-gray-300">정답: <strong class="text-roseGold-300">${correctOpt.num} ${correctOpt.text}</strong></span>
+            <span class="text-xs font-bold text-roseGold-400 bg-roseGold-500/20 px-2 py-0.5 rounded border border-roseGold-400/30">
+              암호: [ ${config.digit} ]
+            </span>
+          </div>
+        `;
+      } else {
+        content += `<p class="text-[11px] text-gray-500 italic">이전 미션을 완료하면 열립니다.</p>`;
+      }
+
+      card.innerHTML = content;
+      container.appendChild(card);
+    }
+
+    function renderPhotoTimelineCard(container) {
+      const isCompleted = currentMission > 3;
+      const isCurrent = currentMission === 3;
+
+      const card = document.createElement('div');
+      card.id = `mission-card-3`;
+      card.className = `w-full rounded-2xl p-4 transition-all duration-500 photo-card-shadow flex flex-col gap-3 ${
+        isCompleted
+          ? 'glass-panel border-roseGold-400/50 bg-roseGold-950/20'
+          : isCurrent
+          ? 'glass-panel border-roseGold-500 shadow-lg ring-1 ring-roseGold-500/50'
+          : 'bg-darkBg/60 border border-white/5 opacity-40 pointer-events-none'
+      }`;
+
+      let content = `
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-sans font-bold bg-roseGold-500/20 text-roseGold-400 border border-roseGold-400/30">
+              MISSION 03
+            </span>
+            <span class="text-xs text-gray-300 font-bold">시간의 흐름을 찾아서</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-sans">추억 사진 퀴즈</span>
+        </div>
+
+        <div class="text-xs font-semibold text-roseGold-300 leading-snug">
+          Q. 아래 4장의 사진을 <span class="text-white underline decoration-roseGold-400">가장 오래된 과거부터 최근 순서대로</span> (1번 → 4번) 터치해 완성하세요.
+        </div>
+      `;
+
+      if (isCurrent) {
+        // Selection indicator bar
+        content += `
+          <div class="bg-black/50 p-2.5 rounded-xl border border-roseGold-500/20 flex items-center justify-between">
+            <span class="text-[11px] text-gray-400">선택한 순서:</span>
+            <div class="flex items-center gap-1.5 font-sans font-bold text-xs">
+              ${[0, 1, 2, 3].map(i => {
+                const photoId = selectedPhotoSequence[i];
+                return `
+                  <div class="w-6 h-6 rounded flex items-center justify-center border ${
+                    photoId
+                      ? 'bg-roseGold-500/30 border-roseGold-400 text-roseGold-300'
+                      : 'border-white/10 bg-black/40 text-gray-600'
+                  }">
+                    ${photoId ? `사진${photoId}` : (i + 1)}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <button onclick="resetPhotoSelection()" class="text-[10px] text-roseGold-400 underline ml-2">다시선택</button>
+          </div>
+
+          <!-- 4 Shuffled Photo Grid -->
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            ${shuffledPhotos.map((photo) => {
+              const isSelected = selectedPhotoSequence.includes(photo.id);
+              const orderIndex = selectedPhotoSequence.indexOf(photo.id);
+
+              return `
+                <div onclick="handlePhotoClick(${photo.id})" class="relative rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'border-roseGold-400 ring-2 ring-roseGold-400/60 opacity-60 pointer-events-none'
+                    : 'border-white/15 hover:border-roseGold-400/50 active:scale-95'
+                }">
+                  <img src="${photo.image}" alt="${photo.label}" class="w-full h-24 object-cover">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2">
+                    <span class="text-xs font-bold text-white drop-shadow">${photo.label}</span>
+                    <span class="text-[9px] text-gray-300 drop-shadow">${photo.name}</span>
+                  </div>
+                  ${isSelected ? `
+                    <div class="absolute inset-0 bg-roseGold-950/70 flex items-center justify-center">
+                      <span class="w-7 h-7 rounded-full bg-roseGold-500 text-white font-sans font-bold text-xs flex items-center justify-center shadow">
+                        ${orderIndex + 1}
+                      </span>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (isCompleted) {
+        content += `
+          <div class="pt-2 border-t border-roseGold-500/20 flex items-center justify-between">
+            <span class="text-xs text-gray-300">정렬 성공: <strong class="text-roseGold-300">사진1 → 사진2 → 사진3 → 사진4</strong></span>
+            <span class="text-xs font-bold text-roseGold-400 bg-roseGold-500/20 px-2 py-0.5 rounded border border-roseGold-400/30">
+              암호: [ ${CONFIG.mission3Digit} ]
+            </span>
+          </div>
+        `;
+      } else {
+        content += `<p class="text-[11px] text-gray-500 italic">앞선 2개의 미션을 풀면 사진들이 나타납니다.</p>`;
+      }
+
+      card.innerHTML = content;
+      container.appendChild(card);
+    }
+
+    window.handleQuizAnswer = function(missionNum, optionIndex) {
+      if (!isPlaying) startMusic();
+
+      const config = missionNum === 1 ? CONFIG.mission1 : CONFIG.mission2;
+      const isCorrect = optionIndex === config.correctIndex;
+
+      if (isCorrect) {
+        unlockedDigits[missionNum - 1] = config.digit;
+        updateSlotDisplay(missionNum - 1, config.digit);
+        playMusicBoxNote(880 + missionNum * 200);
+
+        currentMission++;
+        document.getElementById('lockStatusText').textContent = config.successMsg;
+        renderMissions();
+      } else {
+        playWrongSound();
+        const cardEl = document.getElementById(`mission-card-${missionNum}`);
+        cardEl.classList.add('animate-shake');
+        document.getElementById('lockStatusText').textContent = '아쉬워요! 다시 한 번 생각해보세요.';
+        setTimeout(() => {
+          cardEl.classList.remove('animate-shake');
+        }, 400);
+      }
+    };
+
+    window.handlePhotoClick = function(photoId) {
+      if (!isPlaying) startMusic();
+      if (selectedPhotoSequence.includes(photoId)) return;
+
+      selectedPhotoSequence.push(photoId);
+      playMusicBoxNote(659 + selectedPhotoSequence.length * 120);
+
+      // Check if all 4 selected
+      if (selectedPhotoSequence.length === 4) {
+        const isSequenceCorrect = selectedPhotoSequence.join('-') === '1-2-3-4';
+
+        if (isSequenceCorrect) {
+          unlockedDigits[2] = CONFIG.mission3Digit;
+          updateSlotDisplay(2, CONFIG.mission3Digit);
+          playMusicBoxNote(1318.51);
+
+          currentMission = 4;
+          document.getElementById('lockStatusText').textContent = CONFIG.mission3SuccessMsg;
+          renderMissions();
+          triggerCelebration();
+        } else {
+          // Wrong order
+          playWrongSound();
+          const cardEl = document.getElementById('mission-card-3');
+          cardEl.classList.add('animate-shake');
+          document.getElementById('lockStatusText').textContent = '순서가 맞지 않아요! 다시 도전해보세요.';
+          setTimeout(() => {
+            cardEl.classList.remove('animate-shake');
+            selectedPhotoSequence = [];
+            renderMissions();
+          }, 700);
+          return;
+        }
+      }
+
+      renderMissions();
+    };
+
+    window.resetPhotoSelection = function() {
+      selectedPhotoSequence = [];
+      renderMissions();
+    };
+
+    function triggerCelebration() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 85,
+          origin: { y: 0.6 },
+          colors: ['#e8a598', '#d98270', '#ffffff', '#ffd700']
+        });
+      }
+
+      const fullPassword = unlockedDigits.join('  ');
+      document.getElementById('finalPasswordDisplay').textContent = fullPassword;
+
+      setTimeout(() => {
+        const modal = document.getElementById('successModal');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.querySelector('div').classList.remove('scale-90');
+        modal.querySelector('div').classList.add('scale-100');
+      }, 700);
+    }
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      const modal = document.getElementById('successModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      currentMission = 1;
+      unlockedDigits.fill(null);
+      selectedPhotoSequence = [];
+      shuffledPhotos = shuffleArray(CONFIG.mission3Photos);
+
+      for (let i = 0; i < 3; i++) {
+        const slotEl = document.getElementById(`slot-${i}`);
+        slotEl.textContent = '?';
+        slotEl.className = 'w-14 h-16 rounded-xl bg-black/60 border border-roseGold-500/40 flex items-center justify-center text-3xl font-sans font-bold text-roseGold-400 shadow-inner transition-all duration-500';
+      }
+      document.getElementById('lockStatusText').textContent = '추억 퀴즈를 풀고 3자리 암호를 찾아보세요.';
+      renderMissions();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      shuffledPhotos = shuffleArray(CONFIG.mission3Photos);
+      renderMissions();
+    });
+  </script>
+</body>
+</html>
