@@ -193,7 +193,7 @@
      * -------------------------------------------------------------
      * [3자리 비밀번호 미션 설정]
      * 1번: 첫 만남 날짜 퀴즈 (답: 3번 -> 비밀번호 1번째: 3)
-     * 2번: 남자친구 기피 음식 퀴즈 (답: 4번 -> 비밀번호 2번째: 4)
+     * 2번: 첫키스 장소 퀴즈 (답: 4번 -> 비밀번호 2번째: 4)
      * 3번: 4장의 사진 시간순서 정렬 퀴즈 (1 -> 2 -> 3 -> 4 순서로 맞추면 3번째 번호 해금)
      * -------------------------------------------------------------
      */
@@ -213,20 +213,20 @@
         digit: '3',
         successMsg: '처음 알게 된 설레는 날, 첫 번째 번호 [ 3 ] 획득!'
       },
-      // 2번 퀴즈 설정
+      // 2번 퀴즈 설정 (업데이트: 둘만의 설레는 추억)
       mission2: {
-        title: '너와 나의 취향',
-        theme: '음식 취향',
-        question: 'Q. 남자친구가 가장 싫어할 것 같은 음식을 고른다면?',
+        title: '가장 떨렸던 순간',
+        theme: '첫 키스의 기억',
+        question: 'Q. 우리의 첫키스 장소는 어디일까요?',
         options: [
-          { num: '①', text: '파스타', isCorrect: false },
-          { num: '②', text: '햄버거', isCorrect: false },
-          { num: '③', text: '들깨탕', isCorrect: false },
-          { num: '④', text: '팔보채', isCorrect: true }
+          { num: '①', text: '시화달전망대', isCorrect: false },
+          { num: '②', text: '잠실 롯데월드', isCorrect: false },
+          { num: '③', text: '반월호수', isCorrect: false },
+          { num: '④', text: '너의 집 앞 차안에서', isCorrect: true }
         ],
         correctIndex: 3, // 4번
-        digit: '4',
-        successMsg: '취향까지 완벽히 꿰뚫었네요! 두 번째 번호 [ 4 ] 획득!'
+        digit: '4',      // 2번째 비밀번호 번호
+        successMsg: '그날의 두근거림이 아직도 생생해요. 두 번째 번호 [ 4 ] 획득!'
       },
       // 3번 사진 퀴즈 설정 (1번~4번 순서가 올바른 시간 순서)
       mission3Photos: [
@@ -449,7 +449,6 @@
       `;
 
       if (isCurrent) {
-        // Selection indicator bar
         content += `
           <div class="bg-black/50 p-2.5 rounded-xl border border-roseGold-500/20 flex items-center justify-between">
             <span class="text-[11px] text-gray-400">선택 현황:</span>
@@ -474,7 +473,6 @@
             <button onclick="resetPhotoSelection()" class="text-[10px] text-roseGold-400 hover:text-white underline ml-2 transition">초기화</button>
           </div>
 
-          <!-- 4 Pure Shuffled Photo Grid (No Text Hints) -->
           <div class="grid grid-cols-2 gap-2.5 pt-1">
             ${shuffledPhotos.map((photo) => {
               const isSelected = selectedPhotoSequence.includes(photo.id);
@@ -489,7 +487,7 @@
                   <img src="${photo.image}" alt="추억 사진" class="w-full h-full object-cover transition duration-300 ${isSelected ? 'brightness-40 grayscale-30' : 'group-hover:scale-105'}">
                   
                   ${isSelected ? `
-                    <div class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 animate-fade-in">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1">
                       <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-roseGold-600 to-roseGold-400 text-white font-sans font-extrabold text-sm flex items-center justify-center shadow-lg border border-white/30">
                         ${orderIndex + 1}
                       </div>
@@ -552,7 +550,6 @@
       selectedPhotoSequence.push(photoId);
       playMusicBoxNote(659 + selectedPhotoSequence.length * 120);
 
-      // Check if all 4 selected
       if (selectedPhotoSequence.length === 4) {
         const isSequenceCorrect = selectedPhotoSequence.join('-') === '1-2-3-4';
 
@@ -566,7 +563,6 @@
           renderMissions();
           triggerCelebration();
         } else {
-          // Wrong order
           playWrongSound();
           const cardEl = document.getElementById('mission-card-3');
           cardEl.classList.add('animate-shake');
